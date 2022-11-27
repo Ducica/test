@@ -1,0 +1,2 @@
+const CUSTOMERS_PER_PAGE = 20
+export {CUSTOMERS_PER_PAGE}
