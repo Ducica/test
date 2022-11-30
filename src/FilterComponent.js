@@ -1,6 +1,6 @@
 import React from "react";
 
-const FilterComponent = ({ data, onFilterClick }) => {
+const FilterComponent = ({ data, onFilterClick, totalPages}) => {
     const filters = data.map((currentFilter, index) => (
         <tr key={index}>
             <td onClick={() => onFilterClick(currentFilter)}>
@@ -16,7 +16,7 @@ const FilterComponent = ({ data, onFilterClick }) => {
                         <th>Filter</th>
                     </tr>
                 </thead>
-                <tbody>{filters}</tbody>
+                {totalPages > 1 && <tbody>{filters}</tbody>}
             </table>
         </div>
     );

@@ -26,16 +26,24 @@ function App() {
   };
 
   const onFilterClick = (currentFilter) => {
-    const filteredData = _.filter(applicationData, (x) =>
-      x.psc.startsWith(currentFilter)
-    );
+    let filteredData;
+    if (currentFilter === "other") {
+      filteredData = groupedData[groupedData.length - 1][1];
+    } else {
+      filteredData = _.filter(applicationData, (x) =>
+        x.psc.startsWith(currentFilter)
+
+      );
+      setSearchParams({ filter: currentFilter });
+    }
+
     setState({
       ...state,
       filteredData: filteredData,
       filter: currentFilter,
       currentPage: 1,
     });
-    setSearchParams({ filter: currentFilter });
+  setSearchParams({ filter: currentFilter });
   };
   //for pagination
   const lastIndex = state.currentPage * CUSTOMERS_PER_PAGE;
@@ -43,16 +51,21 @@ function App() {
     state.currentPage * CUSTOMERS_PER_PAGE - CUSTOMERS_PER_PAGE;
   //data for customers on one page removed whitespaces from PSC
   const applicationData = state.filter ? state.filteredData : state.data;
-  const totalPages = Math.ceil(applicationData.length / CUSTOMERS_PER_PAGE);
-  const currentPageCustomers = applicationData.slice(firstIndex, lastIndex);
-
-  const groupedPageData = getGroupedPageData(
-    currentPageCustomers,
-    state.filter.length + 1
+  const filteredNumberEntries = applicationData.length;
+  const totalPages = Math.ceil(filteredNumberEntries / CUSTOMERS_PER_PAGE);
+  const groupedData = getGroupedPageData(
+    applicationData,
+    state.filter === 'other' ? 0 : state.filter.length + 1,
+    filteredNumberEntries
   );
-  const filters = _.flatten(groupedPageData.map((item) => item[0]));
-  const pageContent = _.flattenDeep(groupedPageData.map((item) => item[1]));
-
+  const filters = _.flatten(groupedData.map((item) => item[0]));
+  const pageContent = state.filter
+    ? _.flattenDeep(groupedData.map((item) => item[1])).slice(
+        firstIndex,
+        lastIndex
+      )
+    : state.data.slice(firstIndex, lastIndex);
+  //
   useEffect(() => {
     setState({ ...state, isLoading: true });
     axios
@@ -81,7 +94,7 @@ function App() {
   ) : (
     <>
       <div className="data-container">
-        <FilterComponent data={filters} onFilterClick={onFilterClick} />
+        <FilterComponent data={filters} onFilterClick={onFilterClick} totalPages={totalPages}/>
         <OnePage data={pageContent} />
       </div>
       <Pagination
